@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="CsvHelper" Version="33.0.1" />
+      <PackageReference Include="Selenium.Support" Version="4.27.0" />
+      <PackageReference Include="Selenium.WebDriver" Version="4.27.0" />
+      <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="131.0.6778.8700" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Input.txt" />
+      <Content Include="Input.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="2022.txt" />
+      <Content Include="2022.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="2022_Hyundai_1.txt" />
+      <Content Include="2022_Hyundai_1.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+</Project>
