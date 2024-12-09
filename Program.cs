@@ -13,13 +13,15 @@ if (!inputs.Any())
 }
 
 var filePath = args[0];
+var batchSize = int.Parse(args[1]);
+
 var chasis = File.ReadAllLines(filePath);
 
 var chromeOptions = new ChromeOptions();
 chromeOptions.AddArgument("--headless");
 
 // chasis = chasis.Take(100).ToArray();
-var allChunks = chasis.Chunk(2_000);
+var allChunks = chasis.Chunk(batchSize);
 
 var allTasks = new List<Task>();
 for(var i = 0; i < allChunks.Count(); i++)
