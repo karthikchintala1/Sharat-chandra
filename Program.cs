@@ -13,50 +13,64 @@ if (!inputs.Any())
 }
 
 var filePath = args[0];
-var batchSize = int.Parse(args[1]);
+// var batchSize = int.Parse(args[1]);
+// var filePath = "Input.txt";
+var batchSize = 100;
 
-var chasis = File.ReadAllLines(filePath);
+var chasis = File.ReadAllLines(Path.Combine(Directory.GetCurrentDirectory(), filePath));
 
 var chromeOptions = new ChromeOptions();
 chromeOptions.AddArgument("--headless");
+chromeOptions.AddArguments("window-size=1200,1100");
 
 // chasis = chasis.Take(100).ToArray();
 var allChunks = chasis.Chunk(batchSize);
 
+var chromeDriver = new ChromeDriver(chromeOptions);
+chromeDriver.Url = "https://tgtransport.net/TGCFSTONLINE/Reports/VehicleRegistrationSearch.aspx";
 var allTasks = new List<Task>();
 for(var i = 0; i < allChunks.Count(); i++)
 {
     // create all Tasks
     var chunk = allChunks.ElementAt(i);
-    var taskName = "Task " + i;
-    var task =
-        new Task(() =>
-        {
-            var chromeDriver = new ChromeDriver(chromeOptions);
-            chromeDriver.Url = "https://tgtransport.net/TGCFSTONLINE/Reports/VehicleRegistrationSearch.aspx";
 
-            var dropdown = chromeDriver.FindElement(By.Name("ctl00$OnlineContent$ddlInput"));
-            var selectElement = new SelectElement(dropdown);
-            selectElement.SelectByValue("C");
-            Thread.Sleep(200);
-            
-            var vehicleDetails = FetchVehicleDetailsList(chunk, chromeDriver, taskName);
-            Console.WriteLine($"TaskName: {taskName}: Vehicle Details: {vehicleDetails.Count}");
-            WriteToCsv(vehicleDetails);
-        });
-    allTasks.Add(task);
+    var dropdown = chromeDriver.FindElement(By.Name("ctl00$OnlineContent$ddlInput"));
+    var selectElement = new SelectElement(dropdown);
+    selectElement.SelectByValue("E");
+    Thread.Sleep(500);
+    
+    var vehicleDetails = FetchVehicleDetailsList(chunk, chromeDriver, string.Empty);
+    WriteToCsv(vehicleDetails);
+    // var taskName = "Task " + i;
+    // var task =
+    //     new Task(() =>
+    //     {
+    //         var chromeDriver = new ChromeDriver(chromeOptions);
+    //         chromeDriver.Url = "https://tgtransport.net/TGCFSTONLINE/Reports/VehicleRegistrationSearch.aspx";
+    //
+    //         var dropdown = chromeDriver.FindElement(By.Name("ctl00$OnlineContent$ddlInput"));
+    //         var selectElement = new SelectElement(dropdown);
+    //         selectElement.SelectByValue("C");
+    //         Thread.Sleep(200);
+    //         
+    //         var vehicleDetails = FetchVehicleDetailsList(chunk, chromeDriver, taskName);
+    //         Console.WriteLine($"TaskName: {taskName}: Vehicle Details: {vehicleDetails.Count}");
+    //         WriteToCsv(vehicleDetails);
+    //     });
+    // allTasks.Add(task);
 }
-var watch = Stopwatch.StartNew();
-Parallel.ForEach(allTasks, task => task.Start());
-await Task.WhenAll(allTasks);
-watch.Stop();
-var elapsedMs = watch.ElapsedMilliseconds;
-Console.WriteLine($"Time Taken: {elapsedMs/1000} seconds");
-Console.WriteLine("Processes completed!");
+
+// var watch = Stopwatch.StartNew();
+// Parallel.ForEach(allTasks, task => task.Start());
+// await Task.WhenAll(allTasks);
+// watch.Stop();
+// var elapsedMs = watch.ElapsedMilliseconds;
+// Console.WriteLine($"Time Taken: {elapsedMs/1000} seconds");
+// Console.WriteLine("Processes completed!");
 
 void WriteToCsv(List<VehicleDetails> vehicleDetailsList)
 {
-    using (var writer = new StreamWriter(Environment.CurrentDirectory + $"/VehicleDetails_headless_{DateTime.Now.ToString("MM-dd-yyyy-hh:mm:ss")}.csv"))
+    using (var writer = new StreamWriter(Environment.CurrentDirectory + $"/VehicleDetails_{DateTime.Now.ToString("MM-dd-yyyy-hh:mm:ss")}.csv"))
     using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
     {
         csv.WriteRecords(vehicleDetailsList);
@@ -81,7 +95,7 @@ List<VehicleDetails> FetchVehicleDetailsList(string[] strings, IWebDriver webDri
                 ChasisNumber = strings[i],
                 FinancierName = "EXCEPTION",
                 NoDataFound = true,
-                OwnerName = "EXCEPTION",
+                OwnerName = ex.Message,
             });
         }
     }
