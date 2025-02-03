@@ -120,7 +120,7 @@ List<VehicleDetails> FetchVehicleDetailsList(string[] strings, IWebDriver webDri
         var getDataButton = webDriver.FindElement(By.Id("ctl00_OnlineContent_btnGetData"));
         getDataButton.Click();
     
-        Thread.Sleep(100);
+        Thread.Sleep(500);
 
         if (webDriver.FindElement(By.Id("ctl00_OnlineContent_lblMsg")).Text == "No Data Found")
         {
